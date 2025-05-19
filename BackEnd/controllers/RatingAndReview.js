@@ -67,7 +67,7 @@ exports.createRating = async (req, res) => {
 
 exports.getAverageRating = async (req, res) => {
   try {
-    const { productId } = req.params;
+    const { productId } = req.body;
 
     if (!productId) {
       return res.status(400).json({

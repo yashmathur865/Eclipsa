@@ -13,3 +13,7 @@ exports.connect = () =>{
         process.exit(1);
     })
 }
+
+// Get-ChildItem -Recurse -Include *.js -Exclude package.json, package-lock.json -File |
+// Where-Object { $_.FullName -notmatch '\\node_modules\\' } |
+// Get-Content | Measure-Object -Line
