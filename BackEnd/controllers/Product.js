@@ -122,3 +122,48 @@ exports.getAllProducts = async (req, res) => {
         });
     }
 };
+
+//Funtion to get Product Detail
+exports.getProductDetails = async (req, res) => {
+    const { productId } = req.params;
+
+    if (!productId) {
+        return res.status(400).json({
+            success: false,
+            message: "Product ID is required",
+        });
+    }
+
+    try {
+        const product = await Product.findById(productId)
+            .populate("seller", "name email") // Only populate selected fields
+            .populate("category", "name")     // assuming your category model has a name
+            .populate("tags", "name")         // assuming your tag model has a name
+            .populate({
+                path: "ratingAndReviews",
+                populate: {
+                    path: "user"
+                }
+            });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Product fetched successfully",
+            product,
+        });
+
+    } catch (error) {
+        console.error("Error fetching product details:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
