@@ -125,8 +125,7 @@ exports.signUp = async (req,res) => {
         // hash the password
         const hashedPwd = await bcrypt.hash(password, 10);
 
-        // let approved = "";
-		// approved === "Instructor" ? (approved = false) : (approved = true);
+        
 
         // Create a new profile for the user so that we can create entry in DB
         const profileDetails = await Profile.create({
@@ -143,7 +142,6 @@ exports.signUp = async (req,res) => {
             email,
             password: hashedPwd,
             accountType,
-            approved: approved,
             additionalDetails: profileDetails._id,
             image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName}%20${lastName}`
         })
@@ -232,74 +230,74 @@ exports.login = async (req,res) => {
 }
 
 // Controller for Changing Password
-exports.changePassword = async (req, res) => {
-	try {
-		// Get user data from req.user
-		const userDetails = await User.findById(req.user.id);
+// exports.changePassword = async (req, res) => {
+// 	try {
+// 		// Get user data from req.user
+// 		const userDetails = await User.findById(req.user.id);
 
-		// Get old password, new password, and confirm new password from req.body
-		const { oldPassword, newPassword } = req.body;
+// 		// Get old password, new password, and confirm new password from req.body
+// 		const { oldPassword, newPassword } = req.body;
 
-		// Validate old password
-		const isPasswordMatch = await bcrypt.compare(
-			oldPassword,
-			userDetails.password
-		);
-		if (!isPasswordMatch) {
-			// If old password does not match, return a 401 (Unauthorized) error
-			return res
-				.status(401)
-				.json({ success: false, message: "The password is incorrect" });
-		}
+// 		// Validate old password
+// 		const isPasswordMatch = await bcrypt.compare(
+// 			oldPassword,
+// 			userDetails.password
+// 		);
+// 		if (!isPasswordMatch) {
+// 			// If old password does not match, return a 401 (Unauthorized) error
+// 			return res
+// 				.status(401)
+// 				.json({ success: false, message: "The password is incorrect" });
+// 		}
 
-		// Match new password and confirm new password
-		// if (newPassword !== confirmNewPassword) {
-		// 	// If new password and confirm new password do not match, return a 400 (Bad Request) error
-		// 	return res.status(400).json({
-		// 		success: false,
-		// 		message: "The password and confirm password does not match",
-		// 	});
-		// }
+// 		// Match new password and confirm new password
+// 		// if (newPassword !== confirmNewPassword) {
+// 		// 	// If new password and confirm new password do not match, return a 400 (Bad Request) error
+// 		// 	return res.status(400).json({
+// 		// 		success: false,
+// 		// 		message: "The password and confirm password does not match",
+// 		// 	});
+// 		// }
 
-		// Update password
-		const encryptedPassword = await bcrypt.hash(newPassword, 10);
-		const updatedUserDetails = await User.findByIdAndUpdate(
-			req.user.id,
-			{ password: encryptedPassword },
-			{ new: true }
-		);
+// 		// Update password
+// 		const encryptedPassword = await bcrypt.hash(newPassword, 10);
+// 		const updatedUserDetails = await User.findByIdAndUpdate(
+// 			req.user.id,
+// 			{ password: encryptedPassword },
+// 			{ new: true }
+// 		);
 
-		// Send notification email
-		try {
-			const emailResponse = await mailSender(
-				updatedUserDetails.email,
-				passwordUpdated(
-					updatedUserDetails.email,
-					`Password updated successfully for ${updatedUserDetails.firstName} ${updatedUserDetails.lastName}`
-				)
-			);
-			console.log("Email sent successfully:", emailResponse.response);
-		} catch (error) {
-			// If there's an error sending the email, log the error and return a 500 (Internal Server Error) error
-			console.error("Error occurred while sending email:", error);
-			return res.status(500).json({
-				success: false,
-				message: "Error occurred while sending email",
-				error: error.message,
-			});
-		}
+// 		// Send notification email
+// 		try {
+// 			const emailResponse = await mailSender(
+// 				updatedUserDetails.email,
+// 				passwordUpdated(
+// 					updatedUserDetails.email,
+// 					`Password updated successfully for ${updatedUserDetails.firstName} ${updatedUserDetails.lastName}`
+// 				)
+// 			);
+// 			console.log("Email sent successfully:", emailResponse.response);
+// 		} catch (error) {
+// 			// If there's an error sending the email, log the error and return a 500 (Internal Server Error) error
+// 			console.error("Error occurred while sending email:", error);
+// 			return res.status(500).json({
+// 				success: false,
+// 				message: "Error occurred while sending email",
+// 				error: error.message,
+// 			});
+// 		}
 
-		// Return success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Password updated successfully" });
-	} catch (error) {
-		// If there's an error updating the password, log the error and return a 500 (Internal Server Error) error
-		console.error("Error occurred while updating password:", error);
-		return res.status(500).json({
-			success: false,
-			message: "Error occurred while updating password",
-			error: error.message,
-		});
-	}
-};
+// 		// Return success response
+// 		return res
+// 			.status(200)
+// 			.json({ success: true, message: "Password updated successfully" });
+// 	} catch (error) {
+// 		// If there's an error updating the password, log the error and return a 500 (Internal Server Error) error
+// 		console.error("Error occurred while updating password:", error);
+// 		return res.status(500).json({
+// 			success: false,
+// 			message: "Error occurred while updating password",
+// 			error: error.message,
+// 		});
+// 	}
+// };

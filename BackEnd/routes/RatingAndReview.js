@@ -7,10 +7,10 @@ const {
   getAllRating
 } = require("../controllers/RatingAndReview");
 
-const { auth, isCustomer } = require("../middlewares/auth");
+const { auth, isCustomer,authorizeRoles } = require("../middlewares/auth");
 
 // Create a new rating and review (only customers allowed)
-router.post("/create", auth, isCustomer, createRating);
+router.post("/create", auth, authorizeRoles("Admin", "Customer"), createRating);
 
 // Get average rating for a product — productId passed in req.body instead of params
 router.post("/average-rating", getAverageRating);

@@ -9,10 +9,10 @@ const {
 } = require('../controllers/Categories');
 
 // Create a new category (protected route)
-router.post('/', auth, createCategory);
+router.post('/create', auth, createCategory);
 
 // Get all categories (public)
-router.get('/', showAllCategories);
+router.get('/all', showAllCategories);
 
 // Get products by category (public or protected, your choice)
 router.post('/products', getProductsByCategory);

@@ -8,6 +8,6 @@ const { auth, isAdmin } = require("../middlewares/auth");
 router.post("/create", auth, isAdmin, createTag);
 
 // Get all tags (public access)
-router.post("/all", getAllTags);
+router.get("/all", getAllTags);
 
 module.exports = router;

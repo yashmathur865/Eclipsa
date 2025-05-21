@@ -125,7 +125,7 @@ exports.updateDisplayPicture = async (req, res) => {
 
     const image = await uploadImageToCloudinary(
       displayPicture,
-      process.env.FOLDER_NAME,
+      process.env.FOLDER_NAME_2,
       1000,
       1000
     );

@@ -14,7 +14,7 @@ const {
   resetPassword,
 } = require("../controllers/ResetPassword")
 
-const { auth } = require("../middlewares/auth")
+const { auth} = require("../middlewares/auth")
 
 // Routes for Login, Signup, and Authentication
 
@@ -31,8 +31,6 @@ router.post("/signup", signUp)
 // Route for sending OTP to the user's email
 router.post("/sendotp", sendOtp)
 
-// Route for Changing the password
-router.post("/changepassword", auth, changePassword)
 
 // ********************************************************************************************************
 //                                      Reset Password

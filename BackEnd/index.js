@@ -12,12 +12,12 @@ const categoriesRoutes = require("./routes/Categories");
 const orderRoutes = require("./routes/Order");
 const tagsRoutes = require("./routes/Tags");
 const wishlistRoutes = require("./routes/Wishlist");
-const ratingAndReviewRoutes = require("./routes/Order/RatingAndReview");
+const ratingAndReviewRoutes = require("./routes/RatingAndReview");
 
 
 //database
 const database = require("./config/database");
-const {cloudinaryConnect } = require("./config/cloudinary");
+const {cloudinaryConnect} = require("./config/cloudinary");
 //Importing the required packages
 const cookieParser = require("cookie-parser");
 const cors = require("cors");

@@ -6,8 +6,11 @@ const User = require("../models/User")
 exports.auth = async (req,res, next) => {
 
     try {
+        // console.log("Body token:", req.body.token);
+        // console.log("Cookie token:", req.cookies.token);
+        // console.log("Header token:", req.get("Authorization"));
         // Get token from req.body, req.cookies or req.get("Authorization")
-        const token = req.body.token || req.cookies.token || req.get("Authorization")?.replace("Bearer ", "");
+        const token = req.get("Authorization")?.replace("Bearer ", "") || req.body?.token || req.cookies.token;
 
         // If token is missing, return a 401 (Unauthorized) error
         if(!token) {
@@ -88,3 +91,17 @@ exports.isAdmin = async (req, res, next) => {
        })
     }
 }
+
+
+exports.authorizeRoles  = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!allowedRoles.includes(req.user.accountType)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied: insufficient permissions",
+      });
+    }
+    next();
+  };
+};
+

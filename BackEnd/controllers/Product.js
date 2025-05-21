@@ -1,74 +1,101 @@
-const Product = require("../models/Product")
+const Product = require("../models/Product");
 const Category = require("../models/Category");
-const Tag = require("../models/Tag")
+const Tag = require("../models/Tag");
 const User = require('../models/User');
-const {uploadImageToCloudinary} = require('../utils/imageUploader')
+const { uploadImageToCloudinary } = require('../utils/imageUploader');
 require("dotenv").config();
 
-//Function to create Product
-exports.createProduct = async (req,res) => {
-    try{
-        //fetch data
-        const { title, description, price, discount, sizes, colors, stock, images, category, tags } = req.body;
 
-        // Validate inputs
-        if (!title || !description || !price || !category || !tags || tags.length === 0) {
+//Function to create Product
+exports.createProduct = async (req, res) => {
+    try {
+        // Extract and parse data from request body
+        const {
+            title,
+            description,
+            price,
+            discount,
+            sizes,
+            colors,
+            stock,
+            category,
+            tags
+        } = req.body;
+
+        // Parse sizes, colors, and tags from JSON strings (if provided)
+        const parsedSizes = sizes ? JSON.parse(sizes) : [];
+        const parsedColors = colors ? JSON.parse(colors) : [];
+        const parsedTags = tags ? JSON.parse(tags) : [];
+
+        // Validate required fields
+        if (!title || !description || !price || !category || parsedTags.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "Please provide all required fields"
+                message: "Please provide all required fields",
             });
         }
 
-        // Check if category exists
+        // Validate category existence
         const categoryExists = await Category.findById(category);
         if (!categoryExists) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid category"
+                message: "Invalid category",
             });
         }
 
-        const validTags = await Tag.find({ '_id': { $in: tags } });
-        if (validTags.length !== tags.length) {
+        // Validate tags existence
+        const validTags = await Tag.find({ '_id': { $in: parsedTags } });
+        if (validTags.length !== parsedTags.length) {
             return res.status(400).json({
                 success: false,
-                message: "Some of the tags are invalid"
+                message: "Some of the tags are invalid",
             });
         }
 
-        // Handle images
+        // Handle image uploads
         let imageUrls = [];
-        if (req.files && req.files.length > 0) {
-            for (let i = 0; i < req.files.length; i++) {
-                const result = await uploadImageToCloudinary(req.files[i],process.env.FOLDER_NAME, 500, 'auto');  // Upload to Cloudinary
-                imageUrls.push(result.secure_url);  // Add image URL to the array
+        if (req.files && req.files.images) {
+            const imagesArray = Array.isArray(req.files.images)
+                ? req.files.images
+                : [req.files.images]; // Wrap single image in array
+
+            for (let image of imagesArray) {
+                const result = await uploadImageToCloudinary(
+                    image,
+                    process.env.FOLDER_NAME_1,
+                    500,
+                    'auto'
+                );
+                imageUrls.push(result.secure_url);
             }
         }
 
-        //Check For Seller
+        // Get seller ID from authenticated user
         const sellerId = req.user.id;
 
-        // Create Product
+        // Create new product
         const newProduct = await Product.create({
             title,
             description,
             price,
             discount: discount || 0,
-            sizes: sizes ? JSON.parse(sizes) : [],  // In case sizes comes as JSON string
-            colors: colors ? JSON.parse(colors) : [],
+            sizes: parsedSizes,
+            colors: parsedColors,
             stock,
             images: imageUrls,
             seller: sellerId,
-            categories: category
+            category: category,
+            tags: parsedTags
         });
 
-        // Update the seller's product list
+        // Update seller's product list
         await User.findByIdAndUpdate(sellerId, {
             $push: { productsListed: newProduct._id }
         });
 
-        // For each tag, add the product to its products array
-        for (let tagId of tags) {
+        // Add product to each tag's list
+        for (let tagId of parsedTags) {
             await Tag.findByIdAndUpdate(tagId, {
                 $push: { products: newProduct._id }
             });
@@ -80,17 +107,16 @@ exports.createProduct = async (req,res) => {
             product: newProduct
         });
 
-    }
-    catch(error){
+    } catch (error) {
         console.error("Error creating product:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error while creating product"
         });
     }
-}
+};
 
-//fuction to get all products
+//Function to get all products
 exports.getAllProducts = async (req, res) => {
     try {
         const allProducts = await Product.find({},{
@@ -112,7 +138,7 @@ exports.getAllProducts = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'All products fetched successfully',
-            products
+            allProducts
         });
     } catch (error) {
         res.status(500).json({
@@ -125,7 +151,7 @@ exports.getAllProducts = async (req, res) => {
 
 //Funtion to get Product Detail
 exports.getProductDetails = async (req, res) => {
-    const { productId } = req.params;
+    const { productId } = req.body;
 
     if (!productId) {
         return res.status(400).json({
